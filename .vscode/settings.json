@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "ALL_STRU.C": "cpp",
+        "ALL_XA.C": "cpp",
+        "MAS2.C": "cpp",
+        "MASGAS.C": "cpp",
+        "MMI_MAS1.C": "cpp"
+    }
+}
