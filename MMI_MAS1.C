@@ -250,6 +250,7 @@ unsigned char SendToMMI (unsigned char typ_port)
 {
   unsigned char count,i,typ_pool;unsigned char buf_mmi[40],cr[2];
   buf_mmi[0]=Key_usa;buf_mmi[1]=Key_0;buf_mmi[2]=Key_1;
+  if(display.evt){}// for quick seach
   switch (Display.evt)
   {
     case 0:buf_mmi[3]=Key_K;count=4;typ_pool=15;break;/*опрос клавиатуры*/
