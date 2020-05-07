@@ -3,7 +3,7 @@
 #include "MD5C.C"
 
 int dis_md5=0;
-unsigned char str_1_md5[] = "Версия N2 02.02.2020 YN";
+unsigned char str_1_md5[] = "Версия 01 Jun.2020";
 unsigned char str_2_md5[] = "MD5 идет расчет...";
 unsigned char str_3_md5[] = "";
 unsigned char str_4_md5[] = "";
@@ -477,14 +477,14 @@ unsigned char  MoveListMMI (unsigned char buf_mmi[],unsigned char count,
                   unsigned char size_max)
 {
   unsigned char flag;
-  if (KeyFound(buf_mmi,Key_0,Key_5,count)==1 && Display.num>=6) //F2
+  if (KeyFound(buf_mmi,Key_0,Key_5,count)==1 && Display.num>=13) //F2
   {
-    Display.num=Display.num-6;Horizont=0;Display.row=0;Display.flag=1;flag=1;
+    Display.num=Display.num-13;Horizont=0;Display.row=0;Display.flag=1;flag=1;
     Cursor.size=0;Display.suspend=1;
   } else
-  if (KeyFound(buf_mmi,Key_0,Key_7,count)==1 && Display.num<(size_max-6)) //F3
+  if (KeyFound(buf_mmi,Key_0,Key_7,count)==1 && Display.num<(size_max-13)) //F3
   {
-    Display.num=Display.num+6;Horizont=0;Display.row=0;Display.flag=1;flag=1;
+    Display.num=Display.num+13;Horizont=0;Display.row=0;Display.flag=1;flag=1;
     Cursor.size=0;Display.suspend=1;
   } else flag=0; return flag;
 }
@@ -497,8 +497,9 @@ void WriteMenuToMMI (unsigned char menu[], unsigned char size_menu)
   {
     j=strlen(menu); for (i=0;i<j;i++) mmi_str[i]=menu[i];
     Cursor.size++;
-  } count_smb=28;Horizont=2;Display.evt=2;Display.row++;
-  if (Display.row > 5)
+  } count_smb=18;//01.05.2020 YN was: count_smb=28;
+  Horizont=2;Display.evt=2;Display.row++;
+  if (Display.row > 12) //01.05.2020 YN was: >5
   {
     Display.row=0; Display.flag=0; Cursor.mode=0; Cursor.old=Cursor.row;
     Cursor.row=0; Cursor.enb=1;Display.suspend=0;
@@ -540,19 +541,21 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		{	
 			strcpy(mmi_str,str_1_md5);
 			//printCom(4,"\n\r %s", buf_mmi);
-			Vertical=2;Horizont=3;count_smb=24;Display.evt=2;
+			Vertical=2;Horizont=3;count_smb=(strlen(str_1_md5)+1);Display.evt=2;
 			dis_md5 = 1;
 		}
 		else if(dis_md5 == 1)
 		{
 			strcpy(mmi_str,str_2_md5);
-			Vertical=3;Horizont=1;count_smb=14;Display.evt=2;
+			Vertical=3;Horizont=1;count_smb=(strlen(str_2_md5)+1);Display.evt=2;
 			dis_md5 = 2;
 		}
 		else if(dis_md5 == 2)
 		{
 			if(fl_md_fst==0) f_md5(1);
-			else {dis_md5 = 3; sprintf(str_3_md5,"MD5 (%s,%ld)=", filename,lgth_fl);}
+			//01.05.2020 YN was: else {dis_md5 = 3; sprintf(str_3_md5,"MD5 (%s,%ld)=", filename,lgth_fl);}
+			//now:
+			else {dis_md5 = 3; sprintf(str_3_md5,"MD5 (%s)=  ", filename);}
 		}
 		else if(dis_md5 == 3)
 		{

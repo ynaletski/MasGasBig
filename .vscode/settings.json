@@ -4,6 +4,7 @@
         "ALL_XA.C": "cpp",
         "MAS2.C": "cpp",
         "MASGAS.C": "cpp",
-        "MMI_MAS1.C": "cpp"
+        "MMI_MAS1.C": "cpp",
+        "MD5C.C": "cpp"
     }
 }
