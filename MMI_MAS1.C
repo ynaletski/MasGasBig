@@ -36,6 +36,7 @@ unsigned char str_5_md5[] = "";
 #define Key_P        0x50
 #define Key_T        0x54
 #define Key_S        0x53
+#define Key_G		 0x47		//01.05.2020 YN
 
 #define Key_blank    0x20
 #define Key_dot      0x2e
@@ -256,11 +257,20 @@ unsigned char SendToMMI (unsigned char typ_port)
     case 1:buf_mmi[3]=Key_P;buf_mmi[4]=hex_to_ascii[(Display.page >> 4) & Key_mask];
 	   buf_mmi[5]=hex_to_ascii[Display.page & Key_mask];count=6;
 	   typ_pool=16;break;/*установка страницы дисплея*/
-    case 2:buf_mmi[3]=Key_T;buf_mmi[4]=hex_to_ascii[Vertical];
+	//01.05.2020 YN -----\\//----- was:
+	/*case 2:buf_mmi[3]=Key_T;buf_mmi[4]=hex_to_ascii[Vertical];
 	   buf_mmi[5]=hex_to_ascii[(Horizont >> 4) & Key_mask];
 	   buf_mmi[6]=hex_to_ascii[Horizont & Key_mask];
 	   for (i=0;i< count_smb;i++) buf_mmi[7+i]=mmi_str[i];
-	   count=7+count_smb;typ_pool=17;break;/*передача строки*/
+	   count=7+count_smb;typ_pool=17;break;*//*передача строки*/
+	//now:
+    case 2:buf_mmi[3]=Key_G;buf_mmi[4]=Key_S; 
+		   buf_mmi[5]=hex_to_ascii[(Horizont >> 4) & Key_mask];buf_mmi[6]=hex_to_ascii[Horizont & Key_mask];
+		   //buf_mmi[7]=Key_0;buf_mmi[8]=hex_to_ascii[Vertical];
+		   buf_mmi[7]=hex_to_ascii[((Vertical*8) >> 4) & Key_mask];buf_mmi[8]=hex_to_ascii[(Vertical*8) & Key_mask];
+	   for (i=0;i< count_smb;i++) buf_mmi[9+i]=mmi_str[i];
+	   count=9+count_smb;typ_pool=17;break;/*передача строки*/
+	//01.05.2020 YN -----//\\-----   
     case 3:buf_mmi[3]=Key_S;count=4;typ_pool=18;break;/*опрос страницы*/
     default:count=0;typ_pool=0;Display.evt=0;break;
   } if (count > 0)

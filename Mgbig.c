@@ -19,7 +19,7 @@
 #include "all_stru.c"
 
 #define Max_icp           4   /*число модулей в/в*/
-#define Typ_task          8   /*учёт топлива*/
+#define Typ_task          2   //01.05.2020 YN was:8   /*учёт топлива*/
 #define Max_icp_ain       2   /*число модулей аналог.ввода*/
 #define Max_icp_aout      2   /*число модулей аналог.вывода*/
 #define Max_icp_dio       2   /*число модулей дискрет ввода/вывода*/
