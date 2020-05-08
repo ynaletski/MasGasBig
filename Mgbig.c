@@ -18,8 +18,10 @@
 #include "mmi_mas1.c"
 #include "all_stru.c"
 
+extern int step;
+
 #define Max_icp           4   /*число модулей в/в*/
-#define Typ_task          2   //01.05.2020 YN was:8   /*учёт топлива*/
+#define Typ_task          8   /*учёт топлива*/
 #define Max_icp_ain       2   /*число модулей аналог.ввода*/
 #define Max_icp_aout      2   /*число модулей аналог.вывода*/
 #define Max_icp_dio       2   /*число модулей дискрет ввода/вывода*/
@@ -260,7 +262,10 @@ void main (void)
       {
 	if (icp_pool < 9) ReadFromICP(Prt.nmb_icp);else
 	if (Port[0].buf[0]==Key_true &&(icp_pool==16 || icp_pool==17))
-	   Display.evt=0;else
+  //01.05.2020 YN -----\\//-----
+	  {if (step==0) {Display.evt=0;}} //was: Display.evt=0;
+  //------------- -----//\\-----
+  else
 	if (icp_pool == 15 || Display.suspend)
 	{ /*обработка ответа от MMI подключенного к СОМ1*/
 	  ViewParamToMMI(&param);
