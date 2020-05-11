@@ -3,7 +3,7 @@
 #include "MD5C.C"
 
 //01.05.2020 YN -----\\//-----
-int zapret = 0;
+//int zapret = 0;
 int step =0;
 //------------- -----//\\-----
 
@@ -535,13 +535,11 @@ void WriteMenuToMMI (unsigned char menu[], unsigned char size_menu)
   {
     j=strlen(menu); for (i=0;i<j;i++) mmi_str[i]=menu[i];
     Cursor.size++;
-  } 
-//01.05.2020 YN -----\\//----- 
-  count_smb=28; //was:18
-//------------- -----//\\-----
+  }  
+  count_smb=28; 
   Horizont=2;Display.evt=2;Display.row++;
   //01.05.2020 YN -----\\//----- 
-  if (Display.row > 12) //was:5
+  if (Display.row > 12) //was:5 колличество строк в меню
 //------------- -----//\\-----
   {
     Display.row=0; Display.flag=0; Cursor.mode=0; Cursor.old=Cursor.row;
@@ -563,11 +561,11 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
     {	
 		GoToMenuMMI(10);
 		//01.05.2020 YN -----\\//-----
-		zapret = 1;
+		//zapret = 1;                //раскоментировать в случае включения опроса установленной страницы
 		//------------- -----//\\-----
 	} 
 	//01.05.2020 YN -----\\//-----
-	else if (!zapret) // was: else
+	else //if (!zapret) // was: else
 	//------------- -----//\\-----
     { /* визуализация контрольной суммы */
 		ClearBuffer(); Display.suspend=0; k=0;
@@ -583,7 +581,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	break;
 	//06.04.2020 YN -----\\//-----
 	case 9:
-      	if (KeyFound(buf_mmi,Key_0,Key_6,count)==1) /*отказ от изменения*/
+      	if (KeyFound(buf_mmi,Key_0,Key_6,count)==1) /*отказ от изменения*/ //ESC
       	{
 			flg_zero_meter=0;flg_dyn_clr=0;Cursor.enb=1; Cursor.row=0;
 			Cursor.mode=1; Display.flag=1;Display.row=0; Cursor.size=0;
@@ -642,7 +640,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
        	{ 
 			Display.flag=0;ReturnToMenuMMI();
 			//01.05.2020 YN -----\\//-----
-			zapret=0;
+			//zapret=0;
 			//------------- -----//\\-----
 		} else
        if (KeyFound(buf_mmi,Key_0,Key_2,count)==1) //Enter
@@ -690,12 +688,17 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	      for (k=0;k<j;k++) mmi_str[k]=str_errors[i][k];mmi_pass=i+1;break; 
             }
 	    count_smb=28;Horizont=0;Display.row++;
-	    if (Display.row > 5) {Display.row=Display.flag=0;Display.suspend=0;}
+	   	//01.05.2020 YN -----\\//-----
+        if (Display.row > 12)  //was: >5 колличество точек меню
+		//------------- -----//\\-----
+		{
+			Display.row=Display.flag=0;//Display.suspend=0;
+		}
 	    Display.evt=2;
 	  }
 	} break;
     case 14:/*просмотр до 6 параметров*/
-	if (KeyFound (buf_mmi,Key_0,Key_6,count)==1)
+	if (KeyFound (buf_mmi,Key_0,Key_6,count)==1) //ESC
 	{Display.num=0;ReturnToMenuMMI();}else/*"D"переход в меню выбора точки для просмотра*/
 	if (MoveListMMI (buf_mmi,count,size_max)==1) mmi_pass=0;else
         {
@@ -722,7 +725,12 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	  { /*вывод значения параметра*/
 	      if((Display.num+Display.row)<size_max) FloatToString(dyn_prm,mmi_str,0);
 	      count_smb=8;Horizont=22;Display.row++;
-	      if (Display.row > 5) {Display.row=Display.flag=0;Display.suspend=0;}
+		  //01.05.2020 YN -----\\//-----
+	      if (Display.row > 12) //was: >5 колличество строк в меню
+		  //------------- -----//\\-----
+		  {
+			  Display.row=Display.flag=0;Display.suspend=0;
+		  }  
               if (Display.flag==1) mmi_pass=0;Display.evt=2;
 	  }   	     
 	} break;
@@ -845,7 +853,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	} else
 	if (KeyFound (buf_mmi,Key_0,Key_6,count)==1) /*"ESC"переход в меню*/
 	{ Display.num=Display.old; ReturnToMenuMMI();} else
-	if (KeyFound (buf_mmi,Key_0,Key_4,count)==1)
+	if (KeyFound (buf_mmi,Key_0,Key_4,count)==1) //F1
 	{
 	  if (coord[6] !=2) /*"F1"ввод пароля для изменения*/
 	  {
@@ -923,15 +931,17 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	    if (coord[1]<=40) ByteToString(coord[1]+1,j,1);
             Cursor.size++;
           } count_smb=27;Horizont=2;Display.evt=2;Display.row++;
-          if (Display.row > 5)
+	   	//01.05.2020 YN -----\\//-----
+          if (Display.row > 12)  //was: >5 колличество точек меню
+		//------------- -----//\\-----
           {
             Display.row=0;Display.flag=0;Cursor.mode=0;Cursor.old=Cursor.row;
-            Cursor.row=0;Cursor.enb=1;Display.suspend=0;
+            Cursor.row=0;Cursor.enb=1;//Display.suspend=0;
           }
         } else MoveCursorMMI(buf_mmi,Cursor.size,count);
-        if (KeyFound (buf_mmi,Key_0,Key_6,count)==1)
+        if (KeyFound (buf_mmi,Key_0,Key_6,count)==1) //ESC
         { Display.num=0; ReturnToMenuMMI();} else
-        if (KeyFound (buf_mmi,Key_0,Key_2,count)==1)
+        if (KeyFound (buf_mmi,Key_0,Key_2,count)==1)  //Enter
         {
 	  Display.prm=Display.num+Cursor.row;mmi_pass=0;Display.flag=1;
 	  Display.write=0;Horizont=0;enter_ind=0;Vertical=2; SaveOldPageMMI();
@@ -956,10 +966,12 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	    mmi_str[i+3]=name_sel_all[mmi_sel[Display.num+Display.row]][i];
 	    Cursor.size++;
 	  } count_smb=30; Horizont=0; Display.evt=2; Display.row++;
-	  if (Display.row > 5)
+	//01.05.2020 YN -----\\//-----
+      if (Display.row > 12)  //was: >5 колличество точек меню
+	//------------- -----//\\-----
 	  {
 	    Display.row=Display.flag=0;Cursor.mode=0;Cursor.old=Cursor.row;
-	    Cursor.row=0;Cursor.enb=1;Display.suspend=0;
+	    Cursor.row=0;Cursor.enb=1;//Display.suspend=0;
 	  }
 	} else MoveCursorMMI(buf_mmi,Cursor.size,count);
 	if (KeyFound (buf_mmi,Key_0,Key_2,count)==1)
@@ -994,22 +1006,24 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		mmi_str[i+17]=name_mmi_exp[coord[5]][i-j];
 	      } else mmi_val[Display.row]=128; Cursor.size++;
 	   } count_smb=30;Horizont=0;Display.evt=2;Display.row++;
-          if (Display.row > 5) 
+	   	//01.05.2020 YN -----\\//-----
+          if (Display.row > 12)  //was: >5 колличество точек меню
+		//------------- -----//\\-----  
           {
             Display.row=Display.flag=0;Cursor.mode=0;Cursor.old=Cursor.row;
-            Cursor.row=0;Cursor.enb=1;Display.suspend=0;
+            Cursor.row=0;Cursor.enb=1;//Display.suspend=0;
           }
         } else MoveCursorMMI(buf_mmi,Cursor.size,count);
-        if (KeyFound (buf_mmi,Key_0,Key_6,count)==1)
+        if (KeyFound (buf_mmi,Key_0,Key_6,count)==1) //ESC
         { Display.num=0; ReturnToMenuMMI();} else
-        if (KeyFound (buf_mmi,Key_0,Key_2,count)==1 && mmi_val[Cursor.row]!=128)
+        if (KeyFound (buf_mmi,Key_0,Key_2,count)==1 && mmi_val[Cursor.row]!=128) //Enter
         {
 	  mmi_arc_page=GetArcPoint(&mmi_arc,&mmi_seg);Display.flag=1;
 	  mmi_size=0;Display.prm=Display.num+Cursor.row;SetDisplayPage(19);
 	}
       } break;
     case 19:
-      if (KeyFound (buf_mmi,Key_0,Key_6,count)==1)
+      if (KeyFound (buf_mmi,Key_0,Key_6,count)==1) //ESC
       {Display.flag=1;Display.row=0;Display.suspend=1;SetDisplayPage(13);} else
       { /*"C"листать архив вниз*/
 	if (KeyFound (buf_mmi,Key_0,Key_7,count)==1 && mmi_size<2)
@@ -1041,7 +1055,11 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		FloatToString(value,mmi_str,k);
 	      } else goto M;
 	    } count_smb=24;Display.row++;Display.evt=2;
-	    if (Display.row > 5) Display.flag=0;Horizont=0;
+		//01.05.2020 YN -----\\//-----
+	    if (Display.row > 12) //was: >5 колличество точек меню 
+		//------------- -----//\\-----
+		Display.flag=0;
+		Horizont=0;
 	  }
 	}
       } break;
@@ -1071,7 +1089,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
       if (Display.flag==1) WriteMenuToMMI(str_menu2[Display.num+Display.row],Max_pnt); else
       MoveCursorMMI(buf_mmi,Cursor.size,count);
       if (KeyFound (buf_mmi,Key_0,Key_6,count)==1) ReturnToMenuMMI(); else
-      if (KeyFound (buf_mmi,Key_0,Key_2,count)==1)
+      if (KeyFound (buf_mmi,Key_0,Key_2,count)==1) //Enter
       {
 	nmb_meter=Cursor.row; Horizont=10; Vertical=3; ClearBuffer();
 	flg_zero_meter=1; SetDisplayPage(17);

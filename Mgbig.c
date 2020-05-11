@@ -320,7 +320,9 @@ void main (void)
       for (i=0;i<Max_icp_ain;i++) Ain[i].evt=0;
       for (i=0;i<Max_icp_aout;i++) if (Aout[i].evt<4) Aout[i].evt=0;
       for (i=0;i<Max_icp_dio;i++) Dio[i].evt=0;
-      mmi_flg_ver=1;/*проверка номера страницы индикатора*/
+      //01.05.2020 YN -----\\//-----
+     // mmi_flg_ver=1;/*проверка номера страницы индикатора*/
+      //------------- -----//\\-----
       if (flg_arc_h == 1) /* выполнение записи в часовой архив */
       {
 	flg_arc_h=0; WriteArchive(0);
