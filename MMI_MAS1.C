@@ -7,6 +7,8 @@
 int step =0;
 unsigned char page_clear=2;
 unsigned char page_temporary;
+unsigned char page_str_pass=0;
+unsigned char OK=9;
 //------------- -----//\\-----
 
 int dis_md5=0;
@@ -118,32 +120,32 @@ unsigned char *str_menu2[]={"Первый прибор","Второй прибор","Третий прибор","Чет
 //01.05.2020 YN -----\\//-----
 unsigned char *str_page[]=
 {
-	"                             ",
-	"         Главное меню        ", //1+18
-	"    Меню выбора точки учета  ", //2+18
-	"  Меню выбора архивной точки ", //3+18
-	"     Переменные процесса     ", //4+19
-	"        Ввод значения        ", //5+21
-	" Изменение конфиг. параметра ", //6+20
-	"         Ввод пароля         ", //7+21
-	"     Неправильный пароль     ", //8+22
-	"   Просмотр архивной точки   ", //9+19
-	"        Меню настроек        ", //1018
-	"       Выбор значения        ", //11+18
-	"Изменение параметра невозможн", //12+22
-	"Выполн.настр-ка нуля массомер", //13
-	" Внимание! Перекройте расход ", //14+15+16+23
-	"через массомер, иначе возможе", //15
-	" отказ его работы            ", //16
-	"     Меню выбора прибора     ", //17+18
-	" F2 Пред, F3 След, Enter, ESC", //18
-	" F2 Пред, F3 След,        ESC", //19
-	" F1 Изменение      ESC Отмена", //20
-	" Enter Ввод        ESC Отмена", //21
-	"                   ESC Отмена", //22	
-	" F3 Продолжить       ESC Меню", //23
-	"    ООО Факом технолоджиз    ",  //24+25
-	"                     ESC Меню"  //25
+	"                              ",
+	"         Главное меню         ", //1+18
+	"    Меню выбора точки учета   ", //2+18
+	"  Меню выбора архивной точки  ", //3+18
+	"     Переменные процесса      ", //4+19
+	"        Ввод значения         ", //5+21
+	" Изменение конфиг. параметра  ", //6+20
+	"         Ввод пароля          ", //7+21
+	"     Неправильный пароль      ", //8+22
+	"   Просмотр архивной точки    ", //9+19
+	"        Меню настроек         ", //1018
+	"       Выбор значения         ", //11+18
+	"Изменение параметра невозможно", //12+22
+	"Выполн.настр-ка нуля массомера", //13
+	" Внимание! Перекройте расход  ", //14+15+16+23
+	"через массомер, иначе возможен", //15
+	" отказ его работы             ", //16
+	"     Меню выбора прибора      ", //17+18
+	" F2 Пред, F3 След, Enter, ESC ", //18
+	" F2 Пред, F3 След,        ESC ", //19
+	" F1 Изменение      ESC Отмена ", //20
+	" Enter Ввод        ESC Отмена ", //21
+	"                   ESC Отмена ", //22	
+	" F3 Продолжить       ESC Меню ", //23
+	"    ООО Факом технолоджиз     ", //24+25
+	"                     ESC Меню "  //25
 };
 //------------- -----//\\-----
 
@@ -272,13 +274,25 @@ unsigned mmi_seg,mmi_adr;/*сегмент и адрес*/
 extern unsigned char size_max;
 unsigned char mmi_sel[30],err[Max_error];
 
+//01.05.2020 YN -----\\//----
+/********* установка строки страницы дисплея ****************************/
+void page_screen(unsigned char hor, unsigned char ver, int str, unsigned char pass)
+{
+	int i;
+	Horizont=hor;Vertical=ver;
+	for (i=0;i<30;i++) mmi_str[i]=str_page[str][i];
+	page_str_pass=pass;
+}
+//------------- -----//\\-----
+
 /********* установка страницы дисплея ****************************/
 void SetDisplayPage (unsigned char page)
 {
 	Display.evt=1; 
 	//01.05.2020 YN -----\\//-----
-	 Display.page=page;
-	//page_temporary=page;
+	//Display.page=page;
+	page_temporary=page;
+	Display.page=40;
 	//------------- -----//\\-----
 }
 /*************************/
@@ -349,6 +363,17 @@ unsigned char SendToMMI (unsigned char typ_port)
 		   buf_mmi[7]=hex_to_ascii[((Vertical*8) >> 4) & Key_mask];buf_mmi[8]=hex_to_ascii[(Vertical*8) & Key_mask];
 	   for (i=0;i< (count_smb-18);i++) buf_mmi[9+i]=mmi_str[i+18];
 	   count=9+(count_smb-18);typ_pool=17;step=0;
+	   if (page_str_pass == OK) 
+	   {
+		   Display.page=page_temporary;
+		   page_str_pass=0;
+		   switch (page_temporary)
+		   {
+		   case 16: Vertical=2; break;
+		   case 15: case 17: Horizont=10;Vertical=3; break;
+		   }
+		   memset(mmi_str, 0, sizeof(mmi_str));
+		}
 	   break;/*передача строки*/
 	//------------- -----//\\-----
 
@@ -641,7 +666,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		else if(dis_md5 == 1)
 		{
 			strcpy(mmi_str,str_2_md5);
-			Vertical=3;Horizont=1;count_smb=14;Display.evt=2;
+			Vertical=3;Horizont=1;count_smb=18;Display.evt=2;
 			dis_md5 = 2;
 		}
 		else if(dis_md5 == 2)
@@ -1138,5 +1163,96 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	nmb_meter=Cursor.row; Horizont=10; Vertical=3; ClearBuffer();
 	flg_zero_meter=1; SetDisplayPage(17);
       } break;
+
+	//01.05.2020 YN -----\\//-----
+	case 40:
+		//page_str_pass=OK;
+		switch (page_temporary)
+			{
+		   		case 0: case 1: case 2: case 3: case 4: case 5:
+		   		case 6: case 7: case 8: case 9: //"    ООО Факом технолоджиз     ",  //24+25
+					if(page_str_pass==0) page_screen(0,0,24,1);
+					else page_screen(0,15,25,OK);
+			    break;
+///////////////////////////////////////////////////////////////
+		   		case 10: 						//"         Главное меню         ", //1+18
+					if(page_str_pass==0) page_screen(0,0,1,1);
+					else page_screen(0,15,18,OK);
+				break;
+//////////////////////////////////////////////////////////////
+				case 11: case 12:				//"    Меню выбора точки учета   ", //2+18
+					if(page_str_pass==0) page_screen(0,0,2,1);
+					else page_screen(0,15,18,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 13:						//"  Меню выбора архивной точки  ", //3+18
+					if(page_str_pass==0) page_screen(0,0,3,1);
+					else page_screen(0,15,18,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 14:						//"     Переменные процесса      ", //4+19
+					if(page_str_pass==0) page_screen(0,0,4,1);
+					else page_screen(0,15,19,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 15:						//"        Ввод значения         ", //5+21
+					if(page_str_pass==0) page_screen(0,0,5,1);
+					else page_screen(0,15,21,OK);
+				break;
+/////////////////////////////////////////////////////////////				 
+				case 16:						//" Изменение конфиг. параметра  ", //6+20
+					if(page_str_pass==0) page_screen(0,0,6,1);
+					else page_screen(0,15,20,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 17:						//"         Ввод пароля          ", //7+21
+					if(page_str_pass==0) page_screen(0,0,7,1);
+					else page_screen(0,15,21,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 18:						//"     Неправильный пароль      ", //8+22
+					if(page_str_pass==0) page_screen(0,6,8,1);
+					else page_screen(0,15,22,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 19:						//"   Просмотр архивной точки    ", //9+19
+					if(page_str_pass==0) page_screen(0,0,9,1);
+					else page_screen(0,15,19,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 20:						//"        Меню настроек         ", //10+18
+					if(page_str_pass==0) page_screen(0,0,10,1);
+					else page_screen(0,15,18,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 21:						//"       Выбор значения         ", //11+18
+					if(page_str_pass==0) page_screen(0,0,11,1);
+					else page_screen(0,15,18,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 22:						//"Изменение параметра невозможно", //12+22
+					if(page_str_pass==0) page_screen(0,6,12,1);
+					else page_screen(0,15,22,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 25:						//"Выполн.настр-ка нуля массомера", //13
+					if(page_str_pass==0) page_screen(0,6,13,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 26:						//" Внимание! Перекройте расход  ", //14+15+16+23
+					if(page_str_pass==0) page_screen(0,0,5,1);
+					else if(page_str_pass==1) page_screen(0,6,15,2);
+					else if(page_str_pass==2) page_screen(0,7,16,3);
+					else  page_screen(0,15,23,OK);
+				break;
+/////////////////////////////////////////////////////////////
+				case 27:						//"     Меню выбора прибора      ", //17+18
+					if(page_str_pass==0) page_screen(0,0,17,1);
+					else page_screen(0,15,18,OK);
+				break;
+		   }
+		Display.suspend=0;Display.evt=2;count_smb=30;
+	break;
+	//------------- -----//\\-----  
     }
 }
