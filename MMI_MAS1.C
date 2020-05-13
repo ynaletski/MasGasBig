@@ -9,10 +9,11 @@ unsigned char page_clear=2;
 unsigned char page_temporary;
 unsigned char page_str_pass=0;
 unsigned char OK=9;
+unsigned char count_menu=0;
 //------------- -----//\\-----
 
 int dis_md5=0;
-unsigned char str_1_md5[] = "¬ерси€ N2 02.02.2020 YN";
+unsigned char str_1_md5[] = "¬ерси€ 01 ћай.2020";
 unsigned char str_2_md5[] = "MD5 идет расчет...";
 unsigned char str_3_md5[] = "";
 unsigned char str_4_md5[] = "";
@@ -136,7 +137,7 @@ unsigned char *str_page[]=
 	"¬ыполн.настр-ка нул€ массомера", //13
 	" ¬нимание! ѕерекройте расход  ", //14+15+16+23
 	"через массомер, иначе возможен", //15
-	" отказ его работы             ", //16
+	" отказ его работы.            ", //16
 	"     ћеню выбора прибора      ", //17+18
 	" F2 ѕред, F3 —лед, Enter, ESC ", //18
 	" F2 ѕред, F3 —лед,        ESC ", //19
@@ -529,11 +530,19 @@ void MoveCursorMMI (unsigned char buf_mmi[],unsigned char broad,
     {
       if (Cursor.mode==1) 
       {
-	Horizont=0; Vertical=Cursor.row+1; count_smb=1; ClearBuffer();
+		Horizont=0; Vertical=Cursor.row+1;
+		//01.05.2020 YN -----\\//-----
+		Vertical+=1;
+		//------------- -----//\\-----
+	 	count_smb=1; ClearBuffer();
         Cursor.enb=0; mmi_str[0]=0x3e; Display.evt=2; goto M2;
       } else
       {
-	Vertical=Cursor.old+1; count_smb=1; ClearBuffer(); Display.evt=2;
+		Vertical=Cursor.old+1; 
+		//01.05.2020 YN -----\\//-----
+		Vertical+=1;
+		//------------- -----//\\-----
+		count_smb=1; ClearBuffer(); Display.evt=2;
         Cursor.mode=1; Horizont=0; goto M2;
       }
     } else if (KeyFound(buf_mmi,Key_0,Key_3,count)==1 && Cursor.row<(broad-1)) //KEY 0
@@ -582,15 +591,15 @@ unsigned char  MoveListMMI (unsigned char buf_mmi[],unsigned char count,
                   unsigned char size_max)
 {
   unsigned char flag;
-//01.05.2020 YN -----\\//-----        										was:6; now: >=13 -13 -13 +13;
-  if (KeyFound(buf_mmi,Key_0,Key_5,count)==1 && Display.num>=13) //F2
+//01.05.2020 YN -----\\//-----        										was:6; now: >=12 -12 -12 +12;
+  if (KeyFound(buf_mmi,Key_0,Key_5,count)==1 && Display.num>=12) //F2
   {
-    Display.num=Display.num-13;Horizont=0;Display.row=0;Display.flag=1;flag=1;
+    Display.num=Display.num-12;Horizont=0;Display.row=0;Display.flag=1;flag=1;
     Cursor.size=0;Display.suspend=1;
   } else
-  if (KeyFound(buf_mmi,Key_0,Key_7,count)==1 && Display.num<(size_max-13)) //F3
+  if (KeyFound(buf_mmi,Key_0,Key_7,count)==1 && Display.num<(size_max-12)) //F3
   {
-    Display.num=Display.num+13;Horizont=0;Display.row=0;Display.flag=1;flag=1;
+    Display.num=Display.num+12;Horizont=0;Display.row=0;Display.flag=1;flag=1;
 //------------- -----//\\-----
     Cursor.size=0;Display.suspend=1;
   } else flag=0; return flag;
@@ -600,6 +609,9 @@ void WriteMenuToMMI (unsigned char menu[], unsigned char size_menu)
 {
   unsigned char i,j,flag;
   ClearBuffer(); Vertical=Display.row+1;
+  //01.05.2020 YN -----\\//-----
+  Vertical += 1;
+  //------------- -----//\\-----
   if ((Display.num+Display.row)<size_menu)
   {
     j=strlen(menu); for (i=0;i<j;i++) mmi_str[i]=menu[i];
@@ -607,8 +619,10 @@ void WriteMenuToMMI (unsigned char menu[], unsigned char size_menu)
   }  
   count_smb=28; 
   Horizont=2;Display.evt=2;Display.row++;
-  //01.05.2020 YN -----\\//----- 
-  if (Display.row > 12) //was:5 колличество строк в меню
+//01.05.2020 YN -----\\//-----
+  if (size_menu > 11) count_menu=11;
+  else count_menu=size_menu;
+  if (Display.row > count_menu) //was:5 колличество строк в меню
 //------------- -----//\\-----
   {
     Display.row=0; Display.flag=0; Cursor.mode=0; Cursor.old=Cursor.row;
@@ -666,7 +680,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		else if(dis_md5 == 1)
 		{
 			strcpy(mmi_str,str_2_md5);
-			Vertical=3;Horizont=1;count_smb=18;Display.evt=2;
+			Vertical=4;Horizont=1;count_smb=18;Display.evt=2;
 			dis_md5 = 2;
 		}
 		else if(dis_md5 == 2)
@@ -678,7 +692,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		{
 			memset(mmi_str, 0, sizeof(mmi_str));
 			strcpy(mmi_str,str_3_md5);
-			Vertical=3;Horizont=1;count_smb=(strlen(str_3_md5)+1);Display.evt=2;
+			Vertical=4;Horizont=1;count_smb=(strlen(str_3_md5)+1);Display.evt=2;
 			dis_md5 = 4;
 			sprintf(str_4_md5,"%02x%02x%02x%02x%02x%02x%02x%02x", digest[0],digest[1],digest[2],digest[3],digest[4],digest[5],digest[6],digest[7]);
 		}
@@ -686,7 +700,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		{
 			memset(mmi_str, 0, sizeof(mmi_str));
 			strcpy(mmi_str,str_4_md5);
-			Vertical=4;Horizont=6;count_smb=(strlen(str_4_md5)+1);Display.evt=2;
+			Vertical=6;Horizont=6;count_smb=(strlen(str_4_md5)+1);Display.evt=2;
 			dis_md5 = 5;
 			sprintf(str_5_md5,"%02x%02x%02x%02x%02x%02x%02x%02x", digest[8],digest[9],digest[10],digest[11],digest[12],digest[13],digest[14],digest[15]);
 		}
@@ -694,7 +708,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 		{
 			memset(mmi_str, 0, sizeof(mmi_str));
 			strcpy(mmi_str,str_5_md5);
-			Vertical=5;Horizont=6;count_smb=(strlen(str_5_md5)+1);Display.evt=2;
+			Vertical=7;Horizont=6;count_smb=(strlen(str_5_md5)+1);Display.evt=2;
 			dis_md5 = 6;
 		}
 		else {}
@@ -749,6 +763,9 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	if (Display.flag == 1)
 	{
 	  ClearBuffer();Vertical=Display.row+1;
+	  		//01.05.2020 YN -----\\//-----
+	  		Vertical+=1;
+	  		//------------- -----//\\-----
 	  if ((Display.num+Display.row)<13)
 	  {
             for (i=mmi_pass;i<13;i++) if (err[i]>=10)
@@ -758,7 +775,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
             }
 	    count_smb=28;Horizont=0;Display.row++;
 	   	//01.05.2020 YN -----\\//-----
-        if (Display.row > 12)  //was: >5 колличество точек меню
+        if (Display.row > 11)  //was: >5 колличество точек меню
 		//------------- -----//\\-----
 		{
 			Display.row=Display.flag=0;//Display.suspend=0;
@@ -772,6 +789,9 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	if (MoveListMMI (buf_mmi,count,size_max)==1) mmi_pass=0;else
         {
 	  ClearBuffer();Vertical=Display.row+1;
+	  //01.05.2020 YN -----\\//-----
+	  Vertical+=1;
+	  //------------- -----//\\-----
 	  if (mmi_pass==0) /*смена списка*/
 	  {  /*вывод имени параметра за один проход*/
 	    if ((Display.num+Display.row)<size_max && coord[0]<Max_dynam_all)
@@ -795,7 +815,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	      if((Display.num+Display.row)<size_max) FloatToString(dyn_prm,mmi_str,0);
 	      count_smb=8;Horizont=22;Display.row++;
 		  //01.05.2020 YN -----\\//-----
-	      if (Display.row > 12) //was: >5 колличество строк в меню
+	      if (Display.row > 11) //was: >5 колличество строк в меню
 		  //------------- -----//\\-----
 		  {
 			  Display.row=Display.flag=0;Display.suspend=0;
@@ -993,6 +1013,9 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
         if (Display.flag==1) 
         {
           ClearBuffer();Vertical=Display.row+1;
+			//01.05.2020 YN -----\\//-----
+	  		Vertical+=1;
+	  		//------------- -----//\\-----
           if ((Display.num+Display.row)<Display.size) 
 	  {
 	    j=strlen(conf_all[coord[0]]);
@@ -1001,7 +1024,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
             Cursor.size++;
           } count_smb=27;Horizont=2;Display.evt=2;Display.row++;
 	   	//01.05.2020 YN -----\\//-----
-          if (Display.row > 12)  //was: >5 колличество точек меню
+          if (Display.row > 11)  //was: >5 колличество точек меню
 		//------------- -----//\\-----
           {
             Display.row=0;Display.flag=0;Cursor.mode=0;Cursor.old=Cursor.row;
@@ -1024,8 +1047,11 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	Display.num=Display.old; Vertical=2; SetDisplayPage(16);
       } else/*"ESC"отмена изменени€ параметра*/
       {
-	MoveListMMI (buf_mmi,count,mmi_num_sel);
-	ClearBuffer();Vertical=Display.row+1;
+		MoveListMMI (buf_mmi,count,mmi_num_sel);
+		ClearBuffer();Vertical=Display.row+1;
+		//01.05.2020 YN -----\\//-----
+		Vertical+=1;
+		//------------- -----//\\-----
 	if (Display.flag==1) /*смена списка*/
 	{ /*вывод пункта меню выбор значени€ за один проход*/
 	  if ((Display.num+Display.row)<mmi_num_sel)
@@ -1036,7 +1062,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	    Cursor.size++;
 	  } count_smb=30; Horizont=0; Display.evt=2; Display.row++;
 	//01.05.2020 YN -----\\//-----
-      if (Display.row > 12)  //was: >5 колличество точек меню
+      if (Display.row > 11)  //was: >5 колличество точек меню
 	//------------- -----//\\-----
 	  {
 	    Display.row=Display.flag=0;Cursor.mode=0;Cursor.old=Cursor.row;
@@ -1056,6 +1082,9 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
         if (Display.flag==1) 
         {
           ClearBuffer();Vertical=Display.row+1;
+		  	//01.05.2020 YN -----\\//-----
+	  		Vertical+=1;
+	  		//------------- -----//\\-----
           if ((Display.num+Display.row)<size_max)
 	  { 
             if (coord[0]<Max_conf_all) for (i=0;i<5;i++)
@@ -1076,7 +1105,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	      } else mmi_val[Display.row]=128; Cursor.size++;
 	   } count_smb=30;Horizont=0;Display.evt=2;Display.row++;
 	   	//01.05.2020 YN -----\\//-----
-          if (Display.row > 12)  //was: >5 колличество точек меню
+          if (Display.row > 11)  //was: >5 колличество точек меню
 		//------------- -----//\\-----  
           {
             Display.row=Display.flag=0;Cursor.mode=0;Cursor.old=Cursor.row;
@@ -1103,6 +1132,9 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	  M:if (Display.flag == 1)
 	  {
 	    ClearBuffer();Vertical=Display.row+1;
+			//01.05.2020 YN -----\\//-----
+	  		Vertical+=1;
+	  		//------------- -----//\\-----
 	    if (mmi_arc > 0)
 	    {
 	      mmi_arc--;mmi_adr=mmi_arc*Size_str;
@@ -1125,7 +1157,7 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 	      } else goto M;
 	    } count_smb=24;Display.row++;Display.evt=2;
 		//01.05.2020 YN -----\\//-----
-	    if (Display.row > 12) //was: >5 колличество точек меню 
+	    if (Display.row > 11) //was: >5 колличество точек меню 
 		//------------- -----//\\-----
 		Display.flag=0;
 		Horizont=0;
@@ -1240,10 +1272,10 @@ void ReadFromMMI (unsigned char buf_mmi[],unsigned char count,
 				break;
 /////////////////////////////////////////////////////////////
 				case 26:						//" ¬нимание! ѕерекройте расход  ", //14+15+16+23
-					if(page_str_pass==0) page_screen(0,0,5,1);
+					if(page_str_pass==0) page_screen(0,5,14,1);
 					else if(page_str_pass==1) page_screen(0,6,15,2);
 					else if(page_str_pass==2) page_screen(0,7,16,3);
-					else  page_screen(0,15,23,OK);
+					else if(page_str_pass==3) page_screen(0,15,23,OK);
 				break;
 /////////////////////////////////////////////////////////////
 				case 27:						//"     ћеню выбора прибора      ", //17+18
